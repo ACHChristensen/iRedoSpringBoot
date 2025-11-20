@@ -14,6 +14,6 @@ public class ListingsService {
     ListingsRepository listingsRepository;
 
     public List<Listing> getListings(){
-        return listingsRepository.findAll();
+            return listingsRepository.findAll();
     }
 }
