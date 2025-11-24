@@ -170,6 +170,15 @@ CREATE TABLE `wishlists` (
                                  ON UPDATE CASCADE
 );
 
+CREATE TABLE `listings` (
+                            `id` INT PRIMARY KEY AUTO_INCREMENT,
+                            `sold_seperately` BOOLEAN NOT NULL DEFAULT TRUE,
+                            `price` DECIMAL(10,2) NOT NULL, -- this is the price of all items if sold together
+                            `user_id` INT NOT NULL,
+                            CONSTRAINT `fk_user_listing` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`)
+                                -- ON DELETE CASCADE ??
+                                ON UPDATE CASCADE
+);
 -- -------------------------------------------
 -- Table `wishlist_items`
 -- Description: Items in users' wishlists
@@ -178,25 +187,20 @@ CREATE TABLE `wishlists` (
 CREATE TABLE `wishlist_items` (
                                   `id` INT PRIMARY KEY AUTO_INCREMENT,
                                   `wishlist_id` INT NOT NULL,
-                                  `product_id` INT NOT NULL,
+                                  `listing_id` INT NOT NULL,
                                   `added_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                   CONSTRAINT `fk_wishlist` FOREIGN KEY (`wishlist_id`) REFERENCES `wishlists`(`id`)
                                       ON DELETE CASCADE
                                       ON UPDATE CASCADE,
-                                  CONSTRAINT `fk_wishlist_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`)
+                                  CONSTRAINT `fk_wishlist_listing` FOREIGN KEY (`listing_id`) REFERENCES `listings`(`id`)
                                       ON DELETE CASCADE
                                       ON UPDATE CASCADE,
-                                  UNIQUE KEY `uniq_wishlist_product` (`wishlist_id`, `product_id`),
+                                  UNIQUE KEY `uniq_wishlist_listing` (`wishlist_id`, `listing_id`),
                                   INDEX `idx_wishlist_id` (`wishlist_id`),
-                                  INDEX `idx_product_id` (`product_id`)
+                                  INDEX `idx_listing_id` (`listing_id`)
 );
 
 
-CREATE TABLE `listings` (
-                            `id` INT PRIMARY KEY AUTO_INCREMENT,
-                            `sold_seperately` BOOLEAN NOT NULL DEFAULT TRUE,
-                            `price` DECIMAL(10,2) NOT NULL -- this is the price of all items if sold together
-);
 
 CREATE TABLE `listing_items` (
                                  `id` INT PRIMARY KEY AUTO_INCREMENT,
@@ -392,14 +396,14 @@ CREATE TABLE `rooms` (
 -- Description: Many-to-many relationship between products and rooms
 -- -------------------------------------------
 
-CREATE TABLE `product_rooms` (
+CREATE TABLE `products_rooms` (
                                  `id` INT PRIMARY KEY AUTO_INCREMENT,
                                  `product_id` INT NOT NULL,
                                  `room_id` INT NOT NULL,
-                                 CONSTRAINT `fk_pr_product` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`)
+                                 CONSTRAINT `fk_product_room` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`)
                                      ON DELETE CASCADE
                                      ON UPDATE CASCADE,
-                                 CONSTRAINT `fk_pr_room` FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`)
+                                 CONSTRAINT `fk_room_product` FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`)
                                      ON DELETE CASCADE
                                      ON UPDATE CASCADE,
                                  UNIQUE KEY `uniq_product_room` (`product_id`, `room_id`),
@@ -425,7 +429,7 @@ CREATE TABLE `styles` (
 -- Description: Many-to-many relationship between products and styles
 -- ----------------------------------------------
 
-CREATE TABLE `product_styles` (
+CREATE TABLE `products_styles` (
                                   `id` INT PRIMARY KEY AUTO_INCREMENT,
                                   `product_id` INT NOT NULL,
                                   `style_id` INT NOT NULL,
@@ -439,4 +443,3 @@ CREATE TABLE `product_styles` (
                                   INDEX `idx_product_id` (`product_id`),
                                   INDEX `idx_style_id` (`style_id`)
 );
-commit;
