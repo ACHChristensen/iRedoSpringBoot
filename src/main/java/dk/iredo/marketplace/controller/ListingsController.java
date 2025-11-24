@@ -24,8 +24,12 @@ public class ListingsController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping("/hello")
-    public ResponseEntity<String> hello(){
-        return new ResponseEntity<>("hello", HttpStatus.OK);
+    @GetMapping("/all")
+    public ResponseEntity<String> getAllListings(){
+        String hello  = "Hello World";
+        return ResponseEntity.ok().body(hello);
+
     }
+
+
 }
