@@ -24,14 +24,6 @@ public class ListingsController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping("/all")
-    public ResponseEntity<List<ListingDto>> getAllListings(){
-        List<Listing> request = service.getAll();
-        List<ListingDto> result = request.stream().map(object -> modelMapper.map(object, ListingDto.class)).toList();
-        return new ResponseEntity<>(result, HttpStatus.OK);
-
-    }
-
     @GetMapping("/hello")
     public ResponseEntity<String> hello(){
         return new ResponseEntity<>("hello", HttpStatus.OK);
