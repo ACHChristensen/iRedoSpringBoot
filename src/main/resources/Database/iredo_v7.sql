@@ -32,7 +32,7 @@ DROP TABLE IF EXISTS `product_styles`;
 
 CREATE TABLE `user_roles` (
                               `id` INT PRIMARY KEY AUTO_INCREMENT,
-                              `role` ENUM('admin', 'user', 'seller') NOT NULL UNIQUE
+                              `role` ENUM('admin', 'private_user', 'organization') NOT NULL UNIQUE
 );
 
 -- ----------------------------------------
@@ -443,3 +443,4 @@ CREATE TABLE `products_styles` (
                                   INDEX `idx_product_id` (`product_id`),
                                   INDEX `idx_style_id` (`style_id`)
 );
+commit;
