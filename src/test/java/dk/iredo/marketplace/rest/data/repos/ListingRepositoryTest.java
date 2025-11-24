@@ -1,6 +1,7 @@
 package dk.iredo.marketplace.rest.data.repos;
 
-import dk.iredo.marketplace.rest.data.domain.Listing;
+import dk.iredo.marketplace.model.Listing;
+import dk.iredo.marketplace.repository.ListingsRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
