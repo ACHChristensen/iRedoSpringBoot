@@ -31,4 +31,9 @@ public class ListingsController {
         return new ResponseEntity<>(result, HttpStatus.OK);
 
     }
+
+    @GetMapping("/hello")
+    public ResponseEntity<String> hello(){
+        return new ResponseEntity<>("hello", HttpStatus.OK);
+    }
 }
