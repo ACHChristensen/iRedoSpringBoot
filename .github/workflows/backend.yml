@@ -5,22 +5,24 @@ on:
     branches: ["*"]
   pull_request:
     branches: ["*"]
-  workflow_dispatch:  # allows manual trigger
+  workflow_dispatch:
 
 jobs:
   build-test:
     name: Build & Test Spring Boot
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        java: [21, 25]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java 25
+      - name: Set up Java ${{ matrix.java }}
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "25"
+          java-version: ${{ matrix.java }}
 
       - name: Cache Maven dependencies
         uses: actions/cache@v4
@@ -30,22 +32,54 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2
 
-      - name: Build & test with Maven
-        run: mvn clean verify -DskipTests=false
+      - name: Compile
+        run: mvn clean compile
+
+      - name: Run tests
+        run: mvn test
+
+      - name: Package WAR
+        run: mvn package -DskipTests=false
+
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: marketplace-backend
+          path: target/*.war
 
   docker-build:
     name: Validate Dockerfile Builds
     runs-on: ubuntu-latest
     needs: build-test
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: docker build -t iredo-backend .
-        
-# husk og add hook i settings i github repo (se onenote for hjælp)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.docker-cache
+          key: docker-layer-cache-${{ github.sha }}
+          restore-keys: |
+            docker-layer-cache-
+
+      - name: Build Docker image with cache
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: iredo-backend
+          cache-from: type=local,src=/tmp/.docker-cache
+          cache-to: type=local,dest=/tmp/.docker-cache-new
+
+      - name: Move new cache
+        run: |
+          rm -rf /tmp/.docker-cache
+          mv /tmp/.docker-cache-new /tmp/.docker-cache
+
   deploy:
     name: Trigger Render Deploy
     runs-on: ubuntu-latest
@@ -64,4 +98,3 @@ jobs:
           fi
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-
