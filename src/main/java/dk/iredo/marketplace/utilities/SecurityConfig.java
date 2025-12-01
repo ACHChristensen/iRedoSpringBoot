@@ -2,6 +2,7 @@ package dk.iredo.marketplace.utilities;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -11,8 +12,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
+    private final Environment env;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+    public SecurityConfig(Environment env, JwtAuthenticationFilter jwtFilter) {
+        this.env = env;
         this.jwtFilter = jwtFilter;
     }
 
@@ -25,7 +28,7 @@ public class SecurityConfig {
             // Enable CORS with custom configuration
             .cors(cors -> cors.configurationSource(request -> {
                 var updatedCors = new org.springframework.web.cors.CorsConfiguration();
-                updatedCors.setAllowedOrigins(java.util.List.of("http://localhost:5173")); // your frontend
+                updatedCors.setAllowedOrigins(java.util.List.of(env.getProperty("frontend.url"))); // your frontend
                 updatedCors.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                 updatedCors.setAllowedHeaders(java.util.List.of("*"));
                 updatedCors.setAllowCredentials(true); // needed if using cookies, optional for JWT header
