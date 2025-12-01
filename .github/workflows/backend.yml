@@ -50,11 +50,18 @@ jobs:
     name: Trigger Render Deploy
     runs-on: ubuntu-latest
     needs: docker-build
-
     steps:
-      - name: Call Render Deploy Hook
-        if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trigger Render deploy if secret exists
         run: |
-          curl -X POST "$RENDER_DEPLOY_HOOK"
+          if [ -n "$RENDER_DEPLOY_HOOK" ]; then
+            echo "Deploy hook found. Triggering Render deploy..."
+            curl -X POST "$RENDER_DEPLOY_HOOK"
+          else
+            echo "Render deploy hook not set. Skipping deploy."
+          fi
         env:
           RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+
