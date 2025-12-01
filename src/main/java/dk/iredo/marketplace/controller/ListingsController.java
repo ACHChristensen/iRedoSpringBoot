@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = ListingsController.listings)
-@CrossOrigin // TODO - security
 public class ListingsController {
 
     public static final String listings = "listings";
