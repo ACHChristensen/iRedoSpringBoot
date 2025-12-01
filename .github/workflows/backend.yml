@@ -1,0 +1,60 @@
+name: Backend CI
+
+on:
+  push:
+    branches: ["*"]
+  pull_request:
+    branches: ["*"]
+  workflow_dispatch:  # allows manual trigger
+
+jobs:
+  build-test:
+    name: Build & Test Spring Boot
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "25"
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2
+
+      - name: Build & test with Maven
+        run: mvn clean verify -DskipTests=false
+
+  docker-build:
+    name: Validate Dockerfile Builds
+    runs-on: ubuntu-latest
+    needs: build-test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t iredo-backend .
+        
+# husk og add hook i settings i github repo (se onenote for hjælp)
+  deploy:
+    if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}  # will only run if secret exists
+    name: Trigger Render Deploy
+    runs-on: ubuntu-latest
+    needs: docker-build
+
+    steps:
+      - name: Call Render Deploy Hook
+        run: |
+          curl -X POST "$RENDER_DEPLOY_HOOK"
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
