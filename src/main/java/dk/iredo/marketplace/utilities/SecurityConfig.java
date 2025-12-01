@@ -38,6 +38,7 @@ public class SecurityConfig {
             // Authorize requests
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll() // login open
+                .requestMatchers("/listings/**").permitAll() // TODO - to change?
                 .anyRequest().authenticated()           // everything else requires JWT
             )
 
